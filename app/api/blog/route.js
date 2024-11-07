@@ -12,8 +12,14 @@ LoadDb();
 
 export const GET = async (request) => {
   try {
-    const blogs = await Blog.find({})
-    return NextResponse.json({blogs});
+    const blogId = request.nextUrl.searchParams.get("id");
+    if (blogId) {
+      const blog = await Blog.findById(blogId);
+      return NextResponse.json(blog);
+    } else {
+      const blogs = await Blog.find({});
+      return NextResponse.json({ blogs });
+    }
   } catch (err) {
     return NextResponse.json({ msg: "API Error" });
   }
