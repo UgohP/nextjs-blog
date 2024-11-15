@@ -1,14 +1,34 @@
 "use client";
 import BlogTableItem from "@/components/AdminComponents/BlogTableItem";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const page = () => {
+  const [blogs, setBlogs] = useState([]);
+  const fetchBlogs = async () => {
+    const response = await axios.get("/api/blog");
+    setBlogs(response.data.blogs);
+  };
+
+  const deleteBlog = async (mongoId) => {
+    const response = await axios.delete("/api/blog", {
+      params: {
+        id: mongoId,
+      },
+    });
+    toast.success(response.data.msg)
+    fetchBlogs()
+  };
+  useEffect(() => {
+    fetchBlogs();
+  });
   return (
     <div className="flex-1 pt-5 px-5 sm:pt-12 sm:pl-16">
       <h1>All Blogs</h1>
       <div className="relative h-[80vh] max-w-[850px] overflow-x-auto mt-4 border border-gray-400 scrollbar-ide">
         <table className="w-full text-sm text-gray-500">
-          <thread className="text-sm text bg-gray-700 text-left uppercase">
+          <thead className="text-sm text bg-gray-700 text-left uppercase">
             <tr>
               <th scope="col" className="hidden sm:block px-6 py-3">
                 Author Name
@@ -23,9 +43,21 @@ const page = () => {
                 Action
               </th>
             </tr>
-          </thread>
+          </thead>
           <tbody>
-            <BlogTableItem />
+            {blogs.map((item, index) => {
+              return (
+                <BlogTableItem
+                  key={index}
+                  mongoId={item._id}
+                  title={item.title}
+                  author={item.author}
+                  authorImg={item.authorImg}
+                  date={item.date}
+                  deleteBlog={deleteBlog}
+                />
+              );
+            })}
           </tbody>
         </table>
       </div>

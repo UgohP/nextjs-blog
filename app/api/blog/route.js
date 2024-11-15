@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
 import React from "react";
 import Blog from "@/lb/models/BlogModel";
+const fs = require("fs");
 
 const LoadDb = async () => {
   await ConnectDB();
@@ -53,3 +54,11 @@ export const POST = async (request) => {
     return NextResponse.json({ msg: "API Error" + err }, { status: 500 });
   }
 };
+
+export async function DELETE(request) {
+  const id = await request.nextUrl.searchParams.get("id");
+  const blog = await Blog.findById(id);
+  fs.unlink(`./public${blog.image}`, () => {});
+  await Blog.findByIdAndDelete(id);
+  return NextResponse.json({ msg: "Blog deleted successfully" });
+}
